@@ -14,5 +14,7 @@ export const env = {
     secret: process.env.JWT_SECRET!,
     expiresIn: process.env.JWT_EXPIRES_IN || "15m",
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || "7d",
+    issuer: process.env.JWT_ISSUER || "authplane",
+    audience: process.env.JWT_AUDIENCE || "authplane-client",
   },
 };

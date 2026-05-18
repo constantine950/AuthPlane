@@ -9,19 +9,28 @@ export interface TokenPayload extends JWTPayload {
 
 const secret = new TextEncoder().encode(env.jwt.secret);
 
+const ISSUER = env.jwt.issuer;
+const AUDIENCE = env.jwt.audience;
+
 export const generateAccessToken = async (
   payload: TokenPayload,
 ): Promise<string> => {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime(env.jwt.expiresIn)
     .setIssuedAt()
+    .setIssuer(ISSUER)
+    .setAudience(AUDIENCE)
+    .setSubject(payload.userId)
+    .setExpirationTime(env.jwt.expiresIn)
     .sign(secret);
 };
 
 export const verifyAccessToken = async (
   token: string,
 ): Promise<TokenPayload> => {
-  const { payload } = await jwtVerify(token, secret);
+  const { payload } = await jwtVerify(token, secret, {
+    issuer: ISSUER,
+    audience: AUDIENCE,
+  });
   return payload as TokenPayload;
 };
