@@ -61,7 +61,16 @@ export const AuthController = {
         return;
       }
 
-      const { accessToken } = await AuthService.refresh(token);
+      const { accessToken, newRefreshToken } = await AuthService.refresh(token);
+
+      // Set new refresh token cookie (replaces old one)
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       sendSuccess(res, { accessToken });
     } catch (error) {
       next(error);
