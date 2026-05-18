@@ -44,4 +44,31 @@ export const AuthService = {
 
     return { accessToken, refreshToken };
   },
+
+  async refresh(token: string) {
+    // Find token in DB
+    const storedToken = await RefreshTokenModel.findByToken(token);
+    if (!storedToken) {
+      throw new AppError("Invalid refresh token", 401);
+    }
+
+    // Check if revoked
+    if (storedToken.is_revoked) {
+      throw new AppError("Refresh token has been revoked", 401);
+    }
+
+    // Check if expired
+    if (new Date() > new Date(storedToken.expires_at)) {
+      throw new AppError("Refresh token has expired", 401);
+    }
+
+    // Generate new access token
+    const accessToken = await generateAccessToken({
+      userId: storedToken.user_id,
+      email: storedToken.email,
+      roles: [],
+    });
+
+    return { accessToken };
+  },
 };

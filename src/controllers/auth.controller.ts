@@ -49,4 +49,22 @@ export const AuthController = {
       next(error);
     }
   },
+
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies?.refreshToken;
+
+      if (!token) {
+        res
+          .status(401)
+          .json({ success: false, message: "No refresh token provided" });
+        return;
+      }
+
+      const { accessToken } = await AuthService.refresh(token);
+      sendSuccess(res, { accessToken });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

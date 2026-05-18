@@ -12,7 +12,10 @@ export const RefreshTokenModel = {
 
   async findByToken(token: string) {
     const result = await pool.query(
-      "SELECT * FROM refresh_tokens WHERE token = $1",
+      `SELECT rt.*, u.email 
+     FROM refresh_tokens rt
+     JOIN users u ON rt.user_id = u.id
+     WHERE rt.token = $1`,
       [token],
     );
     return result.rows[0] || null;
