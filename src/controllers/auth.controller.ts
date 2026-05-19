@@ -76,4 +76,25 @@ export const AuthController = {
       next(error);
     }
   },
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies?.refreshToken;
+
+      if (token) {
+        await AuthService.logout(token);
+      }
+
+      // Clear the cookie regardless
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+
+      sendSuccess(res, { message: "Logged out successfully" });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

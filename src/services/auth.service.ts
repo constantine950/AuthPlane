@@ -85,4 +85,12 @@ export const AuthService = {
 
     return { accessToken, newRefreshToken };
   },
+
+  async logout(token: string) {
+    // Revoke refresh token if it exists — silent if not found
+    const storedToken = await RefreshTokenModel.findByToken(token);
+    if (storedToken) {
+      await RefreshTokenModel.revoke(token);
+    }
+  },
 };
