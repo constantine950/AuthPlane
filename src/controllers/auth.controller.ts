@@ -32,9 +32,15 @@ export const AuthController = {
         return;
       }
 
+      const device = req.headers["user-agent"] || "unknown";
+      const ipAddress =
+        (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+
       const { accessToken, refreshToken } = await AuthService.login(
         email,
         password,
+        device,
+        ipAddress,
       );
 
       res.cookie("refreshToken", refreshToken, {

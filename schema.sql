@@ -35,6 +35,7 @@ CREATE TABLE sessions (
 CREATE TABLE refresh_tokens (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
+    session_id  UUID REFERENCES sessions(id) ON DELETE CASCADE,
     token       TEXT UNIQUE NOT NULL,
     is_revoked  BOOLEAN DEFAULT FALSE,
     expires_at  TIMESTAMP NOT NULL,

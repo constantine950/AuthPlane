@@ -4,6 +4,7 @@ import { UserModel } from "../models/user.model";
 import { RefreshTokenModel } from "../models/refreshToken.model";
 import { generateAccessToken } from "../utils/jwt";
 import { AppError } from "../middleware/error.middleware";
+import { SessionModel } from "../models/session.model";
 
 const SALT_ROUNDS = 10;
 
@@ -20,7 +21,12 @@ export const AuthService = {
     return userWithoutPassword;
   },
 
-  async login(email: string, password: string) {
+  async login(
+    email: string,
+    password: string,
+    device: string,
+    ipAddress: string,
+  ) {
     const user = await UserModel.findByEmail(email);
     if (!user) {
       throw new AppError("Invalid credentials", 401);
@@ -31,6 +37,9 @@ export const AuthService = {
       throw new AppError("Invalid credentials", 401);
     }
 
+    // Create session
+    const session = await SessionModel.create(user.id, device, ipAddress);
+
     const accessToken = await generateAccessToken({
       userId: user.id,
       email: user.email,
@@ -40,7 +49,12 @@ export const AuthService = {
     const refreshToken = crypto.randomBytes(64).toString("hex");
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
-    await RefreshTokenModel.create(user.id, refreshToken, expiresAt);
+    await RefreshTokenModel.create(
+      user.id,
+      refreshToken,
+      expiresAt,
+      session.id,
+    );
 
     return { accessToken, refreshToken };
   },
@@ -74,6 +88,7 @@ export const AuthService = {
       storedToken.user_id,
       newRefreshToken,
       expiresAt,
+      storedToken.session_id,
     );
 
     // Generate new access token
