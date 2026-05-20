@@ -33,8 +33,12 @@ export const AuthController = {
       }
 
       const device = req.headers["user-agent"] || "unknown";
-      const ipAddress =
-        (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+      const forwardedFor = req.headers["x-forwarded-for"];
+      const ipAddress = ((Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor) ??
+        req.socket?.remoteAddress ??
+        "unknown") as string;
 
       const { accessToken, refreshToken } = await AuthService.login(
         email,
