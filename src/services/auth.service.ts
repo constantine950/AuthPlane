@@ -5,6 +5,7 @@ import { RefreshTokenModel } from "../models/refreshToken.model";
 import { generateAccessToken } from "../utils/jwt";
 import { AppError } from "../middleware/error.middleware";
 import { SessionModel } from "../models/session.model";
+import { RoleModel } from "../models/role.model";
 
 const SALT_ROUNDS = 10;
 
@@ -17,6 +18,13 @@ export const AuthService = {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const user = await UserModel.create(email, hashedPassword);
+
+    // Assign default 'user' role
+    const userRole = await RoleModel.findByName("user");
+    if (userRole) {
+      await RoleModel.assignToUser(user.id, userRole.id);
+    }
+
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   },
@@ -40,10 +48,14 @@ export const AuthService = {
     // Create session
     const session = await SessionModel.create(user.id, device, ipAddress);
 
+    // Get user roles
+    const roles = await RoleModel.findByUserId(user.id);
+    const roleNames = roles.map((r) => r.name);
+
     const accessToken = await generateAccessToken({
       userId: user.id,
       email: user.email,
-      roles: [],
+      roles: roleNames,
     });
 
     const refreshToken = crypto.randomBytes(64).toString("hex");
