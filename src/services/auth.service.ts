@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
-import crypto from "crypto";
+import crypto, { createHash } from "crypto";
 import { UserModel } from "../models/user.model";
 import { RefreshTokenModel } from "../models/refreshToken.model";
 import { generateAccessToken, verifyAccessToken } from "../utils/jwt";
 import { AppError } from "../middleware/error.middleware";
 import { SessionModel } from "../models/session.model";
 import { RoleModel } from "../models/role.model";
+import { ApiKeyModel } from "../models/apiKey.model";
 
 const SALT_ROUNDS = 10;
 
@@ -152,5 +153,17 @@ export const ServiceService = {
       ...userWithoutPassword,
       roles: roles.map((r) => r.name),
     };
+  },
+};
+
+export const ApiKeyService = {
+  async generate(name: string) {
+    const rawKey = crypto.randomBytes(32).toString("hex");
+    const keyHash = createHash("sha256").update(rawKey).digest("hex");
+
+    await ApiKeyModel.create(name, keyHash);
+
+    // Return raw key only once — never stored in plain text
+    return { key: rawKey, name };
   },
 };

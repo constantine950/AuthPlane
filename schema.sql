@@ -41,3 +41,12 @@ CREATE TABLE refresh_tokens (
     expires_at  TIMESTAMP NOT NULL,
     created_at  TIMESTAMP DEFAULT NOW()
 );
+
+-- API Keys
+CREATE TABLE api_keys (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  key_hash    TEXT UNIQUE NOT NULL,
+  created_at  TIMESTAMP DEFAULT NOW(),
+  is_active   BOOLEAN DEFAULT TRUE
+);
