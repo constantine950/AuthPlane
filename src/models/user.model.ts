@@ -28,4 +28,15 @@ export const UserModel = {
     );
     return result.rows[0];
   },
+
+  async findAll(): Promise<Omit<User, "password">[]> {
+    const result = await pool.query(
+      "SELECT id, email, created_at, updated_at FROM users ORDER BY created_at DESC",
+    );
+    return result.rows;
+  },
+
+  async delete(id: string): Promise<void> {
+    await pool.query("DELETE FROM users WHERE id = $1", [id]);
+  },
 };
