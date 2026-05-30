@@ -40,13 +40,11 @@ export const RoleService = {
   },
 
   async removeRole(userId: string, roleName: string) {
-    // Check user exists
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    // Check role exists
     const role = await RoleModel.findByName(roleName);
     if (!role) {
       throw new AppError(`Role '${roleName}' does not exist`, 404);
@@ -56,6 +54,21 @@ export const RoleService = {
     const userRoles = await RoleModel.findByUserId(userId);
     if (userRoles.length === 1) {
       throw new AppError("Cannot remove last role from user", 400);
+    }
+
+    // Prevent removing admin role if they are the last admin
+    if (roleName === "admin") {
+      const allUsers = await UserModel.findAll();
+      const adminUsers = await Promise.all(
+        allUsers.map(async (u) => {
+          const roles = await RoleModel.findByUserId(u.id);
+          return roles.some((r) => r.name === "admin") ? u : null;
+        }),
+      );
+      const adminCount = adminUsers.filter(Boolean).length;
+      if (adminCount <= 1) {
+        throw new AppError("Cannot remove the last admin", 400);
+      }
     }
 
     await RoleModel.removeFromUser(userId, role.id);
