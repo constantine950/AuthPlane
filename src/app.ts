@@ -2,11 +2,14 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import routes from "./routes/index";
 import { errorHandler } from "./middleware/error.middleware";
+import { generalRateLimit } from "./middleware/rateLimit.middleware";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(generalRateLimit);
+
 app.use("/api", routes);
 
 app.get("/health", (req, res) => {
