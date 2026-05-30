@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { UserModel } from "../models/user.model";
 import { RefreshTokenModel } from "../models/refreshToken.model";
-import { generateAccessToken } from "../utils/jwt";
+import { generateAccessToken, verifyAccessToken } from "../utils/jwt";
 import { AppError } from "../middleware/error.middleware";
 import { SessionModel } from "../models/session.model";
 import { RoleModel } from "../models/role.model";
@@ -119,5 +119,38 @@ export const AuthService = {
     if (storedToken) {
       await RefreshTokenModel.revoke(token);
     }
+  },
+};
+
+export const ServiceService = {
+  async verifyToken(token: string) {
+    try {
+      const payload = await verifyAccessToken(token);
+      return {
+        valid: true,
+        user: {
+          userId: payload.userId,
+          email: payload.email,
+          roles: payload.roles,
+        },
+      };
+    } catch {
+      return { valid: false, user: null };
+    }
+  },
+
+  async getUser(userId: string) {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const roles = await RoleModel.findByUserId(userId);
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      ...userWithoutPassword,
+      roles: roles.map((r) => r.name),
+    };
   },
 };
