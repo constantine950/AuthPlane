@@ -7,6 +7,7 @@ import { AppError } from "../middleware/error.middleware";
 import { SessionModel } from "../models/session.model";
 import { RoleModel } from "../models/role.model";
 import { ApiKeyModel } from "../models/apiKey.model";
+import { AuditService } from "./audit.service";
 
 const SALT_ROUNDS = 10;
 
@@ -57,6 +58,11 @@ export const AuthService = {
       userId: user.id,
       email: user.email,
       roles: roleNames,
+    });
+
+    await AuditService.log(user.id, "login", ipAddress, {
+      device,
+      email: user.email,
     });
 
     const refreshToken = crypto.randomBytes(64).toString("hex");
@@ -119,6 +125,9 @@ export const AuthService = {
     const storedToken = await RefreshTokenModel.findByToken(token);
     if (storedToken) {
       await RefreshTokenModel.revoke(token);
+    }
+    if (storedToken) {
+      await AuditService.log(storedToken.user_id, "logout", "unknown", {});
     }
   },
 };

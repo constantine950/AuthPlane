@@ -50,3 +50,13 @@ CREATE TABLE api_keys (
   created_at  TIMESTAMP DEFAULT NOW(),
   is_active   BOOLEAN DEFAULT TRUE
 );
+
+-- Audit Logs
+CREATE TABLE audit_logs (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+  action      TEXT NOT NULL,
+  ip_address  TEXT,
+  metadata    JSONB,
+  created_at  TIMESTAMP DEFAULT NOW()
+);

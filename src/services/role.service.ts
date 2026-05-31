@@ -1,6 +1,7 @@
 import { RoleModel } from "../models/role.model";
 import { UserModel } from "../models/user.model";
 import { AppError } from "../middleware/error.middleware";
+import { AuditService } from "./audit.service";
 
 export const RoleService = {
   async getAllRoles() {
@@ -36,6 +37,10 @@ export const RoleService = {
     }
 
     await RoleModel.assignToUser(userId, role.id);
+    await AuditService.log(userId, "role_assigned", "system", {
+      role: roleName,
+      targetUser: userId,
+    });
     return { message: `Role '${roleName}' assigned successfully` };
   },
 
@@ -72,6 +77,10 @@ export const RoleService = {
     }
 
     await RoleModel.removeFromUser(userId, role.id);
+    await AuditService.log(userId, "role_removed", "system", {
+      role: roleName,
+      targetUser: userId,
+    });
     return { message: `Role '${roleName}' removed successfully` };
   },
 };
