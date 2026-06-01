@@ -1,5 +1,6 @@
 node_modules
 dist
 .env
-dashboard
+dashboard/node_modules
+dashboard/dist
 *.log
