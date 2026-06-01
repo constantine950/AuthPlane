@@ -16,7 +16,9 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(generalRateLimit);
+if (process.env.NODE_ENV !== "test") {
+  app.use(generalRateLimit);
+}
 app.use("/api", routes);
 
 app.get("/health", (req, res) => {

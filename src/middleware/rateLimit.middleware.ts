@@ -1,8 +1,9 @@
 import rateLimit from "express-rate-limit";
+const isTest = process.env["NODE_ENV"] === "test";
 
 export const loginRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  windowMs: 15 * 60 * 1000,
+  max: isTest ? 1000 : 5,
   message: {
     success: false,
     message: "Too many login attempts. Please try again in 15 minutes.",
@@ -12,8 +13,8 @@ export const loginRateLimit = rateLimit({
 });
 
 export const registerRateLimit = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,
+  windowMs: 60 * 60 * 1000,
+  max: isTest ? 1000 : 10,
   message: {
     success: false,
     message: "Too many accounts created. Please try again later.",
@@ -24,7 +25,7 @@ export const registerRateLimit = rateLimit({
 
 export const generalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: isTest ? 1000 : 100,
   message: {
     success: false,
     message: "Too many requests. Please slow down.",

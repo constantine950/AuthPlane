@@ -88,11 +88,6 @@ export const AuthController = {
   },
 
   async logout(req: Request, res: Response, next: NextFunction) {
-    console.log("IP debug:", {
-      forwarded: req.headers["x-forwarded-for"],
-      socket: req.socket?.remoteAddress,
-      ip: req.ip,
-    });
     try {
       const token = req.cookies?.refreshToken;
       const ipAddress = req.socket?.remoteAddress ?? "unknown";
