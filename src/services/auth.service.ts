@@ -120,14 +120,11 @@ export const AuthService = {
     return { accessToken, newRefreshToken };
   },
 
-  async logout(token: string) {
-    // Revoke refresh token if it exists — silent if not found
+  async logout(token: string, ipAddress: string) {
     const storedToken = await RefreshTokenModel.findByToken(token);
     if (storedToken) {
       await RefreshTokenModel.revoke(token);
-    }
-    if (storedToken) {
-      await AuditService.log(storedToken.user_id, "logout", "unknown", {});
+      await AuditService.log(storedToken.user_id, "logout", ipAddress, {});
     }
   },
 };
