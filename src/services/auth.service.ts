@@ -169,7 +169,7 @@ export const ApiKeyService = {
 
     await ApiKeyModel.create(name, keyHash);
 
-    // Return raw key only once — never stored in plain text
+    // Return raw key only once
     return { key: rawKey, name };
   },
 };

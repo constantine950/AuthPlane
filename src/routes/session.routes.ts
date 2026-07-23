@@ -4,7 +4,7 @@ import { authenticate } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.use(authenticate); // all routes below require valid JWT
+router.use(authenticate);
 
 router.get("/", SessionController.getSessions);
 router.delete("/:sessionId", SessionController.revokeSession);
