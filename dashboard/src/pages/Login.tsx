@@ -12,10 +12,12 @@ export default function Login() {
   const handleLogin = async () => {
     setError("");
     setLoading(true);
+
     try {
       await AuthLib.login(email, password);
-      navigate("/");
-    } catch {
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
       setError("Invalid email or password");
     } finally {
       setLoading(false);

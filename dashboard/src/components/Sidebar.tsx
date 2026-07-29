@@ -3,7 +3,7 @@ import { AuthLib } from "../lib/auth";
 import { useNavigate } from "react-router-dom";
 
 const links = [
-  { to: "/", label: "Dashboard" },
+  { to: "/dashboard", label: "Dashboard" },
   { to: "/users", label: "Users" },
   { to: "/roles", label: "Roles" },
   { to: "/sessions", label: "Sessions" },
@@ -15,7 +15,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     await AuthLib.logout();
-    navigate("/login");
+    navigate("/");
   };
 
   return (

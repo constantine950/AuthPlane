@@ -6,6 +6,7 @@ import Roles from "./pages/Roles";
 import Sessions from "./pages/Sessions";
 import Audit from "./pages/Audit";
 import { AuthLib } from "./lib/auth";
+import Landing from "./pages/Landing";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return AuthLib.isAuthenticated() ? <>{children}</> : <Navigate to="/login" />;
@@ -14,9 +15,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />
