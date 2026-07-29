@@ -199,7 +199,7 @@ export default function Landing() {
               authplane — live demo
             </span>
           </div>
-          <div className="p-5 min-h-[320px]" ref={terminalRef}>
+          <div className="p-5 min-h-80" ref={terminalRef}>
             {lines.map((line, i) => (
               <div
                 key={i}
@@ -333,7 +333,7 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="text-center py-24 border-t border-[#2a2a3d] bg-gradient-to-b from-[#0a0a0f] to-[#11111a]">
+      <section className="text-center py-24 border-t border-[#2a2a3d] bg-linear-to-b from-[#0a0a0f] to-[#11111a]">
         <h2 className="text-5xl font-semibold tracking-tight mb-4">
           Your apps deserve
           <br />a real auth layer.
