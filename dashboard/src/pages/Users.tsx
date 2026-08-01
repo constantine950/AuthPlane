@@ -13,6 +13,12 @@ export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState("user");
+  const [creating, setCreating] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -25,11 +31,35 @@ export default function Users() {
     }
   };
 
+  const createUser = async () => {
+    if (!newEmail || !newPassword) return;
+    setCreating(true);
+    setError("");
+    try {
+      await api.post("/users", {
+        email: newEmail,
+        password: newPassword,
+        role: newRole,
+      });
+      setSuccess(`User ${newEmail} created successfully`);
+      setShowModal(false);
+      setNewEmail("");
+      setNewPassword("");
+      setNewRole("user");
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const deleteUser = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
       await api.delete(`/users/${userId}`);
       setUsers(users.filter((u) => u.id !== userId));
+      setSuccess("User deleted successfully");
     } catch {
       setError("Failed to delete user");
     }
@@ -43,11 +73,24 @@ export default function Users() {
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
       <main className="flex-1 p-8">
-        <h1 className="text-2xl font-bold mb-6">Users</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Users</h1>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-700"
+          >
+            + Create User
+          </button>
+        </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
+            {success}
           </div>
         )}
 
@@ -93,6 +136,69 @@ export default function Users() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* CREATE USER MODAL */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+              <h2 className="text-lg font-bold mb-5">Create User</h2>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  placeholder="user@example.com"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value)}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                >
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                  <option value="moderator">moderator</option>
+                  <option value="service">service</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 text-sm border rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={createUser}
+                  disabled={creating}
+                  className="px-4 py-2 text-sm bg-gray-900 text-white rounded hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {creating ? "Creating..." : "Create User"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>

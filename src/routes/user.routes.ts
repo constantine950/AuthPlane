@@ -9,6 +9,7 @@ router.use(authenticate);
 router.use(authorize("admin"));
 
 router.get("/", UserController.getAllUsers);
+router.post("/", UserController.createUser);
 router.delete("/:userId", UserController.deleteUser);
 
 export default router;

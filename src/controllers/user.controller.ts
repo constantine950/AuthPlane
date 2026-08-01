@@ -12,6 +12,24 @@ export const UserController = {
     }
   },
 
+  async createUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password, role } = req.body;
+
+      if (!email || !password) {
+        res
+          .status(400)
+          .json({ success: false, message: "Email and password are required" });
+        return;
+      }
+
+      const user = await UserService.createUser(email, password, role);
+      sendSuccess(res, { message: "User created successfully", user }, 201);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params["userId"] as string;

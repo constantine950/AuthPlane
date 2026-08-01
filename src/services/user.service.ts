@@ -1,6 +1,7 @@
 import { UserModel } from "../models/user.model";
 import { AppError } from "../middleware/error.middleware";
 import { RoleModel } from "../models/role.model";
+import bcrypt from "bcrypt";
 
 export const UserService = {
   async getAllUsers() {
@@ -15,6 +16,25 @@ export const UserService = {
     );
 
     return usersWithRoles;
+  },
+
+  async createUser(email: string, password: string, role?: string) {
+    const existingUser = await UserModel.findByEmail(email);
+    if (existingUser) {
+      throw new AppError("Email already exists", 409);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await UserModel.create(email, hashedPassword);
+
+    // Assign default user role
+    const defaultRole = await RoleModel.findByName(role || "user");
+    if (defaultRole) {
+      await RoleModel.assignToUser(user.id, defaultRole.id);
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   },
 
   async deleteUser(userId: string) {
